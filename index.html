@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>释放权证 Demo - JunYou SDK</title>
+    <!-- 引入 JunYou H5 SDK -->
+    <script src="https://open-sdk.junyouchain.com/jysdk-h5-0.0.1.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #667eea;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .info-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            font-size: 14px;
+            color: #666;
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+        .value {
+            font-size: 14px;
+            color: #333;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+            background: #fff;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #999;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .result-box {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .result-box.success {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+
+        .result-box.error {
+            background: #ffebee;
+            border: 2px solid #f44336;
+        }
+
+        .result-item {
+            margin-bottom: 12px;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-item .label {
+            color: #333;
+        }
+
+        .result-item .value {
+            font-weight: 600;
+        }
+
+        .result-box.success .result-item .value {
+            color: #2e7d32;
+        }
+
+        .result-box.error .result-item .value {
+            color: #c62828;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .step-indicator .step {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .step-indicator .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .step-indicator .step.active .step-number {
+            background: #4caf50;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .console-log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .console-log .log-item {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+
+        .console-log .log-time {
+            color: #858585;
+            margin-right: 8px;
+        }
+
+        .console-log .log-info {
+            color: #4ec9b0;
+        }
+
+        .console-log .log-success {
+            color: #4ec9b0;
+        }
+
+        .console-log .log-error {
+            color: #f48771;
+        }
+
+        .flow-guide {
+            margin-bottom: 30px;
+        }
+
+        .flow-step {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .flow-step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .flow-step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .flow-step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .flow-detail {
+            margin-top: 15px;
+        }
+
+        .flow-detail-item {
+            margin-bottom: 12px;
+        }
+
+        .flow-detail-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .flow-detail-value {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+            word-break: break-all;
+            white-space: pre-wrap;
+            border-left: 3px solid #667eea;
+        }
+
+        .flow-detail-value code {
+            background: transparent;
+            padding: 0;
+            color: #667eea;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 释放权证 Demo</h1>
+            <p>JunYou SDK - ReleaseWarrant 功能演示</p>
+            <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                <span id="apiStatus" style="padding: 4px 8px; background: rgba(255,255,255,0.2); border-radius: 4px;">
+                    检查后端连接...
+                </span>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- 流程说明 -->
+            <div class="section flow-guide">
+                <div class="section-title">📋 流程说明</div>
+                
+                <!-- 步骤0：SDK初始化 -->
+                <div class="flow-step">
+                    <div class="flow-step-header">
+                        <div class="flow-step-number">0</div>
+                        <div class="flow-step-title">SDK 初始化（页面加载时自动执行）</div>
+                    </div>
+                    <div class="flow-detail">
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">说明：</span>
+                            <div class="flow-detail-value">页面加载时会自动初始化 JunYou SDK，SDK 在需要签名时会自动调用后端接口获取签名和 OpenAuth。</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">接口：</span>
+                            <div class="flow-detail-value">POST <code>http://localhost:8080/api/signature-with-open-auth</code></div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">调用时机：</span>
+                            <div class="flow-detail-value">当 SDK 需要签名时自动调用（例如调用 ReleaseWarrant 方法时）</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">请求参数：</span>
+                            <div class="flow-detail-value">{
+  "method": "POST",  //HTTP方法（由SDK自动传入）
+  "path": "/api/..." //API路径（由SDK自动传入）
+}</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">返回数据：</span>
+                            <div class="flow-detail-value">{
+  "code": 200,
+  "data": {
+    "access_id": "访问ID",
+    "signature": "签名",
+    "nonce": "随机数",
+    "timestamp": "时间戳",
+    "open_auth": "OpenAuth令牌"
+  }
+}</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">返回参数说明：</span>
+                            <div class="flow-detail-value" style="font-size: 11px; line-height: 1.6;">• access_id (string): 访问ID，用于API认证
+• signature (string): HMAC-SHA256签名，用于API认证
+• nonce (string): 随机数，防止重放攻击
+• timestamp (string): 时间戳，用于签名验证
+• open_auth (string): OpenAuth令牌，用于用户身份认证
+这些参数会被SDK自动使用，无需手动处理</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤1 -->
+                <div class="flow-step">
+                    <div class="flow-step-header">
+                        <div class="flow-step-number">1</div>
+                        <div class="flow-step-title">获取订单</div>
+                    </div>
+                    <div class="flow-detail">
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">接口：</span>
+                            <div class="flow-detail-value">POST <code>http://localhost:8080/api/order</code></div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">请求参数：</span>
+                            <div class="flow-detail-value">{
+  "amount": "100.00"
+}</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">返回数据：</span>
+                            <div class="flow-detail-value">{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "order_no": "订单号",
+    "amount": "100.00"
+  }
+}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤2 -->
+                <div class="flow-step">
+                    <div class="flow-step-header">
+                        <div class="flow-step-number">2</div>
+                        <div class="flow-step-title">获取释放权证参数</div>
+                    </div>
+                    <div class="flow-detail">
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">接口：</span>
+                            <div class="flow-detail-value">GET <code>http://localhost:8080/api/release-message/{order_no}</code></div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">请求参数：</span>
+                            <div class="flow-detail-value">路径参数: order_no (从步骤1获取的订单号)</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">返回数据：</span>
+                            <div class="flow-detail-value">{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "amount": "100.00",
+    "ratio": "0.1",
+    "level1_ratio": "0.15",
+    "level2_ratio": "0.1",
+    "level1_open_id": "一度用户open_id",
+    "level2_open_id": "二度用户open_id"
+  }
+}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤3 -->
+                <div class="flow-step">
+                    <div class="flow-step-header">
+                        <div class="flow-step-number">3</div>
+                        <div class="flow-step-title">调用SDK释放权证</div>
+                    </div>
+                    <div class="flow-detail">
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">说明：</span>
+                            <div class="flow-detail-value">调用 SDK 方法时，SDK 会自动调用步骤0中的签名接口获取认证信息，然后发起权证释放请求。</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">接口：</span>
+                            <div class="flow-detail-value">SDK方法: <code>JunDRE.EWT.ReleaseWarrant(params)</code></div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">传入参数（params 对象）：</span>
+                            <div class="flow-detail-value">{
+  "amount": "100.00",     //必需, 消费的金额或GOC兑付数量
+  "ratio": "0.1",         //可选, 用户权证比例(权证数量 = amount * ratio)
+  "level1_ratio": "0.15", //可选, 一度用户权证比例(权证数量 = amount * ratio * level1_ratio)
+  "level2_ratio": "0.1",  //可选, 二度用户权证比例(权证数量 = amount * ratio * level2_ratio)
+  "level1_open_id": "xxx",//可选, 一度用户 open_id
+  "level2_open_id": "xxx" //可选, 二度用户 open_id
+}</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">响应参数：</span>
+                            <div class="flow-detail-value" style="font-size: 11px; line-height: 1.6;">• success (bool): 是否成功，示例: true
+• errorCode (string): 状态码（成功时为空字符串），示例: ""
+• errorMessage (string): 错误信息（成功时为空字符串），示例: ""
+• json (object): 确认释放权证时使用，示例: {biz_no: 长度20的字符串类型}</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">响应示例：</span>
+                            <div class="flow-detail-value">{
+  "success": true,        // 是否成功
+  "errorCode": "",        // 状态码（成功时为空字符串）
+  "errorMessage": "",    // 错误信息（成功时为空字符串）
+  "json": {
+    "biz_no": "20250920000000000000"
+  }
+}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤4 -->
+                <div class="flow-step">
+                    <div class="flow-step-header">
+                        <div class="flow-step-number">4</div>
+                        <div class="flow-step-title">保存业务编号</div>
+                    </div>
+                    <div class="flow-detail">
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">接口：</span>
+                            <div class="flow-detail-value">POST <code>http://localhost:8080/api/ewt/release-biz-no</code></div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">请求参数：</span>
+                            <div class="flow-detail-value">{
+  "ewt_biz_no": "业务编号（从步骤3获取）",
+  "order_no": "订单号（从步骤1获取）"
+}</div>
+                        </div>
+                        <div class="flow-detail-item">
+                            <span class="flow-detail-label">返回数据：</span>
+                            <div class="flow-detail-value">{
+  "code": 200,
+  "message": "业务编号保存成功，权证释放已确认"
+}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步骤指示器 -->
+            <div class="step-indicator" id="stepIndicator" style="display: none;">
+                <div class="step" id="step1">
+                    <span class="step-number">1</span>
+                    <span>获取订单</span>
+                </div>
+                <div class="step" id="step2">
+                    <span class="step-number">2</span>
+                    <span>获取参数</span>
+                </div>
+                <div class="step" id="step3">
+                    <span class="step-number">3</span>
+                    <span>释放权证</span>
+                </div>
+                <div class="step" id="step4">
+                    <span class="step-number">4</span>
+                    <span>保存编号</span>
+                </div>
+            </div>
+
+            <!-- 订单信息展示 -->
+            <div class="section" id="orderSection" style="display: none;">
+                <div class="section-title">📦 订单信息</div>
+                <div class="info-item">
+                    <span class="label">订单号：</span>
+                    <span class="value" id="orderNo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">订单金额：</span>
+                    <span class="value" id="orderAmount">-</span>
+                </div>
+            </div>
+
+            <!-- 权证释放参数展示 -->
+            <div class="section" id="paramsSection" style="display: none;">
+                <div class="section-title">⚙️ 释放参数</div>
+                <div class="info-item">
+                    <span class="label">金额：</span>
+                    <span class="value" id="paramAmount">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">奖励比例：</span>
+                    <span class="value" id="paramRatio">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">一度比例：</span>
+                    <span class="value" id="paramLevel1Ratio">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">二度比例：</span>
+                    <span class="value" id="paramLevel2Ratio">-</span>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="button-group">
+                <button class="btn btn-primary" id="releaseBtn" onclick="handleReleaseWarrant()">
+                    <span id="btnText">释放权证</span>
+                </button>
+                <button class="btn btn-secondary" onclick="handleReset()">重置</button>
+            </div>
+
+            <!-- 结果显示 -->
+            <div class="section" id="resultSection" style="display: none;">
+                <div class="section-title">📊 执行结果</div>
+                <div class="result-box" id="resultBox">
+                    <div class="result-item">
+                        <span class="label">状态：</span>
+                        <span class="value" id="resultStatus">-</span>
+                    </div>
+                    <div class="result-item" id="bizNoItem" style="display: none;">
+                        <span class="label">业务编号：</span>
+                        <span class="value" id="resultBizNo">-</span>
+                    </div>
+                    <div class="result-item" id="errorItem" style="display: none;">
+                        <span class="label">错误信息：</span>
+                        <span class="value" id="resultError">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 控制台日志 -->
+            <div class="section">
+                <div class="section-title">📝 执行日志</div>
+                <div class="console-log" id="consoleLog">
+                    <div class="log-item">
+                        <span class="log-time">[等待操作]</span>
+                        <span class="log-info">点击"释放权证"按钮开始流程</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SDK 初始化状态
+        let sdkInitialized = false;
+
+        // 初始化 JunYou SDK
+        async function initJunYouSDK() {
+            if (!window.JunDRE) {
+                addLog('⚠️ JunYou SDK 未加载', 'error');
+                return;
+            }
+
+            try {
+                // 定义 jySdkFn 函数，用于获取签名和令牌
+                const customMethods = {
+                    jySdkFn: async (params) => {
+                        addLog(`📝 SDK 请求签名: ${params.method} ${params.path}`, 'info');
+                        
+                        try {
+                            // 调用后端接口获取签名（open_id 在后端写死）
+                            addLog('📝 调用后端接口获取签名...', 'info');
+                            
+                            const signRes = await apiRequest(`${API_BASE_URL}/signature-with-open-auth`, {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    method: params.method,
+                                    path: params.path
+                                })
+                            });
+
+                            if (signRes.code !== 200) {
+                                throw new Error(signRes.message || '获取签名失败');
+                            }
+
+                            // 从响应中提取签名信息
+                            const { access_id, signature, nonce, timestamp, open_auth } = {
+                                access_id: signRes.data.access_id,
+                                signature: signRes.data.signature,
+                                nonce: signRes.data.nonce,
+                                timestamp: signRes.data.timestamp,
+                                open_auth: signRes.data.open_auth
+                            };
+
+                            // 返回 SDK 需要的格式（headers 对象）
+                            const authHeaders = {
+                                'X-Access-ID': access_id,
+                                'X-Signature': signature,
+                                'X-Signature-Nonce': nonce,
+                                'X-Timestamp': timestamp,
+                                'X-Open-Auth': open_auth,
+                            };
+
+                            // 打印 authHeaders
+                            console.log('📋 Auth Headers:', authHeaders);
+                            addLog('📋 Auth Headers: ' + JSON.stringify(authHeaders, null, 2), 'info');
+
+                            addLog('✅ 签名获取成功', 'success');
+                            return authHeaders;
+                        } catch (error) {
+                            addLog('❌ 获取签名失败: ' + error.message, 'error');
+                            throw error;
+                        }
+                    }
+                };
+
+                // 初始化 SDK
+                window.JunDRE.init({
+                    methods: customMethods
+                });
+
+                sdkInitialized = true;
+                addLog('✅ JunYou SDK 初始化成功', 'success');
+            } catch (error) {
+                addLog('❌ SDK 初始化失败: ' + error.message, 'error');
+                console.error('SDK 初始化错误:', error);
+            }
+        }
+
+        // API 基础配置
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        // 通用 API 请求函数
+        async function apiRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('API 请求失败:', error);
+                throw error;
+            }
+        }
+
+        // API 调用
+        async function userOrderApi(params = {}) {
+            addLog('步骤1: 调用获取订单接口...', 'info');
+            try {
+                const response = await apiRequest(`${API_BASE_URL}/order`, {
+                    method: 'POST',
+                    body: JSON.stringify({ amount: params.amount || '100.00' })
+                });
+                addLog('✅ 订单获取成功', 'success');
+                return response;
+            } catch (error) {
+                addLog('❌ 订单获取失败: ' + error.message, 'error');
+                throw error;
+            }
+        }
+
+        async function ReleaseMessageApi(params) {
+            addLog('步骤2: 调用获取释放权证数据接口...', 'info');
+            try {
+                const response = await apiRequest(`${API_BASE_URL}/release-message/${params.order_no}`, {
+                    method: 'GET'
+                });
+                addLog('✅ 释放权证数据获取成功', 'success');
+                return response;
+            } catch (error) {
+                addLog('❌ 释放权证数据获取失败: ' + error.message, 'error');
+                throw error;
+            }
+        }
+
+        async function storeEwtReleaseBizNoApi(params) {
+            addLog('步骤4: 调用存储业务编号接口（会调用SDK确认权证释放）...', 'info');
+            try {
+                const response = await apiRequest(`${API_BASE_URL}/ewt/release-biz-no`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        ewt_biz_no: params.ewt_biz_no,
+                        order_no: params.order_no
+                    })
+                });
+                addLog('✅ 业务编号保存成功，权证释放已确认', 'success');
+                return response;
+            } catch (error) {
+                addLog('❌ 业务编号保存失败: ' + error.message, 'error');
+                throw error;
+            }
+        }
+
+        // 检查后端服务连接
+        async function checkBackendConnection() {
+            const statusEl = document.getElementById('apiStatus');
+            if (!statusEl) return;
+            
+            try {
+                const response = await fetch('http://localhost:8080/health', {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(3000) // 3秒超时
+                });
+                if (response.ok) {
+                    statusEl.textContent = '✅ 后端服务已连接';
+                    statusEl.style.background = 'rgba(76, 175, 80, 0.3)';
+                } else {
+                    throw new Error('服务不可用');
+                }
+            } catch (error) {
+                statusEl.textContent = '⚠️ 后端服务未连接';
+                statusEl.style.background = 'rgba(255, 152, 0, 0.3)';
+                console.warn('后端服务不可用');
+            }
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            // 检查后端连接
+            await checkBackendConnection();
+            
+            // 初始化 JunYou SDK
+            await initJunYouSDK();
+            
+            // 每30秒检查一次连接状态
+            setInterval(checkBackendConnection, 30000);
+        });
+
+        // 工具函数
+        const MAX_LOG_ITEMS = 100; // 最大日志条数
+        function addLog(message, type = 'info') {
+            const consoleLog = document.getElementById('consoleLog');
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            
+            const time = new Date().toLocaleTimeString();
+            const logClass = type === 'error' ? 'log-error' : (type === 'success' ? 'log-success' : 'log-info');
+            
+            logItem.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="${logClass}">${message}</span>
+            `;
+            
+            consoleLog.appendChild(logItem);
+            
+            // 限制日志条数，防止无限增长
+            const logItems = consoleLog.querySelectorAll('.log-item');
+            if (logItems.length > MAX_LOG_ITEMS) {
+                // 删除最旧的日志（保留第一条提示信息）
+                for (let i = 1; i < logItems.length - MAX_LOG_ITEMS + 1; i++) {
+                    logItems[i].remove();
+                }
+            }
+            
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+            
+            // 控制台也输出
+            console.log(`[${time}] ${message}`);
+        }
+
+        function updateStep(stepNum) {
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (i <= stepNum) {
+                    stepEl.classList.add('active');
+                } else {
+                    stepEl.classList.remove('active');
+                }
+            }
+        }
+
+        // 主要处理函数
+        async function handleReleaseWarrant() {
+            try {
+                const releaseBtn = document.getElementById('releaseBtn');
+                const btnText = document.getElementById('btnText');
+                
+                releaseBtn.disabled = true;
+                btnText.innerHTML = '<span class="loading"></span>处理中...';
+                
+                // 显示步骤指示器
+                document.getElementById('stepIndicator').style.display = 'flex';
+                updateStep(0);
+                
+                // 清空之前的结果
+                document.getElementById('resultSection').style.display = 'none';
+                document.getElementById('orderSection').style.display = 'none';
+                document.getElementById('paramsSection').style.display = 'none';
+                
+                // 1. 获取订单信息
+                updateStep(1);
+                let orderRes;
+                try {
+                    orderRes = await userOrderApi({});
+                } catch (error) {
+                    addLog('❌ 获取订单失败: ' + error.message, 'error');
+                    showError('获取订单失败: ' + error.message);
+                    return;
+                }
+
+                const { code, data } = orderRes;
+
+                if (code !== 200) {
+                    addLog('❌ 获取订单失败: ' + (orderRes.message || '未知错误'), 'error');
+                    showError(orderRes.message || '获取订单失败');
+                    return;
+                }
+
+                if (!data || !data.order_no) {
+                    addLog('❌ 订单数据格式错误', 'error');
+                    showError('订单数据格式错误');
+                    return;
+                }
+
+                addLog('✅ 订单获取成功: ' + data.order_no, 'success');
+                
+                // 显示订单信息
+                document.getElementById('orderNo').textContent = data.order_no;
+                document.getElementById('orderAmount').textContent = '¥' + data.amount;
+                document.getElementById('orderSection').style.display = 'block';
+
+                // 2. 获取释放权证数据
+                updateStep(2);
+                let MessageRes;
+                try {
+                    MessageRes = await ReleaseMessageApi({
+                        order_no: data.order_no
+                    });
+                } catch (error) {
+                    addLog('❌ 获取释放权证数据失败: ' + error.message, 'error');
+                    showError('获取释放权证数据失败: ' + error.message);
+                    return;
+                }
+
+                if (MessageRes.code !== 200) {
+                    addLog('❌ 获取释放权证数据失败: ' + (MessageRes.message || '未知错误'), 'error');
+                    showError(MessageRes.message || '获取释放权证数据失败');
+                    return;
+                }
+
+                if (!MessageRes.data) {
+                    addLog('❌ 释放权证数据格式错误', 'error');
+                    showError('释放权证数据格式错误');
+                    return;
+                }
+
+                addLog('✅ 释放权证数据获取成功', 'success');
+                
+                // 显示释放参数
+                const params = MessageRes.data;
+                document.getElementById('paramAmount').textContent = params.amount;
+                document.getElementById('paramRatio').textContent = params.ratio;
+                document.getElementById('paramLevel1Ratio').textContent = params.level1_ratio;
+                document.getElementById('paramLevel2Ratio').textContent = params.level2_ratio;
+                document.getElementById('paramsSection').style.display = 'block';
+
+                // 3. 调用 SDK ReleaseWarrant
+                updateStep(3);
+                addLog('步骤3: 调用 SDK ReleaseWarrant...', 'info');
+                
+                if (!sdkInitialized || !window.JunDRE) {
+                    throw new Error('SDK 未初始化，请确保 JunYou SDK 已正确加载');
+                }
+                
+                addLog('📞 调用 JunYou SDK', 'info');
+                
+                // ReleaseWarrant 是异步方法，返回 Promise
+                const Result = await window.JunDRE.EWT.ReleaseWarrant({ ...MessageRes.data });
+
+                // 输出完整的返回结果用于调试
+                console.log('SDK ReleaseWarrant 返回结果:', Result);
+                addLog('📋 SDK 返回结果: ' + JSON.stringify(Result, null, 2), 'info');
+
+                if (!Result.success) {
+                    // 构建详细的错误信息
+                    const errorDetails = [];
+                    if (Result.errorCode) {
+                        errorDetails.push(`错误代码: ${Result.errorCode}`);
+                    }
+                    if (Result.errorMessage) {
+                        errorDetails.push(`错误信息: ${Result.errorMessage}`);
+                    }
+                    if (Result.detail) {
+                        errorDetails.push(`详细信息: ${JSON.stringify(Result.detail)}`);
+                    }
+                    
+                    const fullErrorMsg = errorDetails.length > 0 
+                        ? errorDetails.join(' | ')
+                        : '未知错误';
+                    
+                    addLog('❌ 权证预申请释放失败: ' + fullErrorMsg, 'error');
+                    showError(fullErrorMsg);
+                    return;
+                }
+
+                // SDK 返回的结果结构可能不同，需要根据实际返回调整
+                // 根据 SDK 源码，返回的是 dataProcessing 的结果
+                // 需要从返回结果中提取业务编号
+                const bizNo = Result.biz_no || Result.data?.biz_no || Result.json?.biz_no;
+                
+                if (!bizNo) {
+                    addLog('⚠️ 警告: 未找到业务编号，返回结果: ' + JSON.stringify(Result), 'info');
+                    // 如果SDK返回的是iframe处理结果，可能需要从其他字段获取
+                    addLog('✅ 权证释放流程完成', 'success');
+                    showSuccess('流程完成（请查看返回结果）');
+                    return;
+                }
+
+                addLog('✅ 权证释放成功，业务编号: ' + bizNo, 'success');
+
+                // 4. 存储业务编号（会调用SDK确认权证释放）
+                updateStep(4);
+                let storeResult;
+                try {
+                    storeResult = await storeEwtReleaseBizNoApi({
+                        ewt_biz_no: bizNo,
+                        order_no: data.order_no,
+                    });
+                } catch (error) {
+                    addLog('❌ 存储业务编号失败: ' + error.message, 'error');
+                    showError('存储业务编号失败: ' + error.message);
+                    return;
+                }
+
+                if (storeResult.code !== 200) {
+                    addLog('❌ 存储业务编号失败: ' + (storeResult.message || '未知错误'), 'error');
+                    showError(storeResult.message || '存储业务编号失败');
+                    return;
+                }
+
+                addLog('✅ 业务编号保存成功', 'success');
+                addLog('🎉 权证释放流程完成！', 'success');
+
+                // 显示成功结果
+                showSuccess(bizNo);
+                
+                updateStep(4);
+
+            } catch (error) {
+                console.error('权证流程错误:', error);
+                addLog('❌ 发生错误: ' + error.message, 'error');
+                showError(error.message || '未知错误');
+            } finally {
+                const releaseBtn = document.getElementById('releaseBtn');
+                const btnText = document.getElementById('btnText');
+                releaseBtn.disabled = false;
+                btnText.textContent = '释放权证';
+            }
+        }
+
+        function showSuccess(bizNo) {
+            const resultSection = document.getElementById('resultSection');
+            const resultBox = document.getElementById('resultBox');
+            const resultStatus = document.getElementById('resultStatus');
+            const bizNoItem = document.getElementById('bizNoItem');
+            const resultBizNo = document.getElementById('resultBizNo');
+            const errorItem = document.getElementById('errorItem');
+            
+            resultBox.className = 'result-box success';
+            resultStatus.textContent = '成功';
+            resultBizNo.textContent = bizNo;
+            bizNoItem.style.display = 'flex';
+            errorItem.style.display = 'none';
+            resultSection.style.display = 'block';
+        }
+
+        function showError(errorMessage) {
+            const resultSection = document.getElementById('resultSection');
+            const resultBox = document.getElementById('resultBox');
+            const resultStatus = document.getElementById('resultStatus');
+            const errorItem = document.getElementById('errorItem');
+            const resultError = document.getElementById('resultError');
+            const bizNoItem = document.getElementById('bizNoItem');
+            
+            resultBox.className = 'result-box error';
+            resultStatus.textContent = '失败';
+            resultError.textContent = errorMessage;
+            errorItem.style.display = 'flex';
+            bizNoItem.style.display = 'none';
+            resultSection.style.display = 'block';
+        }
+
+        function handleReset() {
+            // 重置所有状态
+            document.getElementById('orderSection').style.display = 'none';
+            document.getElementById('paramsSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('stepIndicator').style.display = 'none';
+            
+            // 清空日志（保留第一条）
+            const consoleLog = document.getElementById('consoleLog');
+            consoleLog.innerHTML = `
+                <div class="log-item">
+                    <span class="log-time">[等待操作]</span>
+                    <span class="log-info">点击"释放权证"按钮开始流程</span>
+                </div>
+            `;
+            
+            addLog('🔄 已重置，可以重新开始', 'info');
+        }
+    </script>
+</body>
+</html>
+

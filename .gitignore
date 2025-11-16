@@ -1,0 +1,56 @@
+# 敏感配置文件
+.env
+.env.local
+.env.*.local
+*.env
+*.secret
+*.key
+*.pem
+*.p12
+*.jks
+
+# 包含敏感信息的配置文件
+application-local.properties
+application-prod.properties
+application-*.properties
+!application.properties
+
+# 日志文件
+*.log
+logs/
+
+# 编译输出
+target/
+build/
+dist/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE 配置
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# 依赖目录
+node_modules/
+vendor/
+
+# 测试覆盖率
+coverage/
+*.coverprofile
